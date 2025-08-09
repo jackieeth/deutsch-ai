@@ -5,7 +5,7 @@ import Link from "next/link";
 import {ElevenLabsLogo, GithubLogo} from "@/components/logos";
 
 export const metadata: Metadata = {
-    title: "ConvAI",
+    title: "Deutsch AI",
 };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
@@ -20,15 +20,13 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             >
                 <div className={"flex"}>
                     <Link href={"/"} prefetch={true}>
-                        <ElevenLabsLogo
-                            className={"h-[15px] w-auto hover:text-gray-500"}
-                        />
+                        Deutsch AI:<br/>A Quantum Physics Explainer
                     </Link>
                 </div>
 
                 <div className={"flex gap-4 justify-end"}>
                     <Link
-                        href="https://github.com/jonatanvm/convai-demo"
+                        href="https://github.com/jackieeth/deutsch-ai"
                         target="_blank"
                         rel="noopener noreferrer"
                         className={"py-0.5"}
