@@ -75,7 +75,7 @@ export function ConvAI() {
             </CardTitle>
           </CardHeader>
           <div className={"flex flex-col gap-y-4 text-center"}>
-            <div
+            {/* <div
               className={cn(
                 "orb my-16 mx-12",
                 conversation.status === "connected" && conversation.isSpeaking
@@ -84,7 +84,30 @@ export function ConvAI() {
                   ? "animate-orb-slow orb-inactive"
                   : "orb-inactive"
               )}
-            ></div>
+            ></div> */}
+
+            <FaceDetection 
+            onExpressionChange={setFaceExpressions}
+            className="w-full"
+          />
+          {faceExpressions && (
+            <div className="mt-4 text-white text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div className={cn("p-2 rounded", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
+                </div>
+                <div className={cn("p-2 rounded", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
+                </div>
+                <div className={cn("p-2 rounded", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
+                </div>
+                <div className="p-2 rounded bg-blue-500/20">
+                  😊 {(faceExpressions.happiness * 100).toFixed(0)}%
+                </div>
+              </div>
+            </div>
+          )}
 
             <Button
               variant={"outline"}
@@ -110,38 +133,7 @@ export function ConvAI() {
         </CardContent>
       </Card>
       
-      {/* Face Detection Component */}
-      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md"}>
-        <CardContent className="p-4">
-          <CardHeader className="p-0 pb-4">
-            <CardTitle className={"text-center text-white text-lg"}>
-              Facial Expression Detection
-            </CardTitle>
-          </CardHeader>
-          <FaceDetection 
-            onExpressionChange={setFaceExpressions}
-            className="w-full"
-          />
-          {faceExpressions && (
-            <div className="mt-4 text-white text-sm">
-              <div className="grid grid-cols-2 gap-2">
-                <div className={cn("p-2 rounded", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
-                  {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
-                </div>
-                <div className={cn("p-2 rounded", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
-                  {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
-                </div>
-                <div className={cn("p-2 rounded", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
-                  {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
-                </div>
-                <div className="p-2 rounded bg-blue-500/20">
-                  😊 {(faceExpressions.happiness * 100).toFixed(0)}%
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
