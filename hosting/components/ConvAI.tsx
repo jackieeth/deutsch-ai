@@ -29,6 +29,7 @@ async function getSignedUrl(): Promise<string> {
 
 export function ConvAI() {
   const [faceExpressions, setFaceExpressions] = useState<any>(null);
+  const [lastConfusedTime, setLastConfusedTime] = useState<number>(0);
   const [questions, setQuestions] = useState([
     "Explain what is superposition",
     "What is measurement?",
@@ -67,6 +68,34 @@ export function ConvAI() {
   const stopConversation = useCallback(async () => {
     await conversation.endSession();
   }, [conversation]);
+
+  // Handle automatic confusion detection
+  React.useEffect(() => {
+    if (faceExpressions?.confused && 
+        conversation.status === "connected" && 
+        Date.now() - lastConfusedTime > 30000) { // Prevent spam - only trigger once every 30 seconds
+      console.log("User is confused, triggering automatic response");
+      setLastConfusedTime(Date.now());
+      
+      // Automatically ask "I do not quite get that." when user is confused
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance("I do not quite get that.");
+        utterance.volume = 0.8;
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        
+        // Wait for any ongoing speech to finish
+        speechSynthesis.cancel();
+        speechSynthesis.speak(utterance);
+      }
+
+      // Add "I do not quite get that." to visible questions if not already present
+      const confusionQuestion = "I do not quite get that.";
+      if (!questions.includes(confusionQuestion)) {
+        setQuestions(prevQuestions => [...prevQuestions, confusionQuestion]);
+      }
+    }
+  }, [faceExpressions?.confused, conversation.status, lastConfusedTime, questions]);
 
   const handleQuestionClick = async (question: string) => {
     console.log("Question clicked:", question);
@@ -113,6 +142,7 @@ export function ConvAI() {
         "What is schrodinger picture?",
         "How to use qubit to represent physical systems?",
         "What is quantum decoherence?",
+        "I do not quite get that.",
       ];
 
       // Mark the current question as used
@@ -161,22 +191,22 @@ export function ConvAI() {
           {/* Face expressions display - reserve space to prevent layout shift */}
           <div className="mt-4 text-white text-sm min-h-[80px]">
             {faceExpressions ? (
-              <div className="grid grid-cols-2 gap-2">
-                <div className={cn("p-1.5 rounded text-xs", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
+              <div className="grid grid-cols-3 gap-2">
+                {/* <div className={cn("p-1.5 rounded text-xs", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
                   {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
+                </div> */}
+                <div className={cn("p-1.5 rounded text-xs w-full min-w-0 truncate", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.headTilted ? "Confused" : "Neutral"}
                 </div>
-                <div className={cn("p-1.5 rounded text-xs", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
-                  {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
+                <div className={cn("p-1.5 rounded text-xs w-full min-w-0 truncate", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.confused ? "Disagreeing" : "Neutral"}
                 </div>
-                <div className={cn("p-1.5 rounded text-xs", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
-                  {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
-                </div>
-                <div className="p-1.5 rounded bg-blue-500/20 text-xs">
+                <div className="p-1.5 rounded bg-blue-500/20 text-xs w-full min-w-0 truncate">
                   😊 {(faceExpressions.happiness * 100).toFixed(0)}%
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-full text-white/50 text-xs px-2">
+              <div className="flex items-center justify-center text-white/50 text-xs px-2">
                 Turn on camera so that Deutsch AI can interpret your facial expressions for better interaction.
               </div>
             )}
@@ -185,7 +215,7 @@ export function ConvAI() {
             <Button
               variant={"outline"}
               className={"rounded-full bg-white/10 backdrop-blur-md text-white border-white hover:bg-white/20 hover:text-white"}
-              size={"lg"}
+              size={"sm"}
               onClick={conversation.status === "connected" ? stopConversation : startConversation}
             >
               {conversation.status === "connected" ? "End conversation" : "Start conversation"}
