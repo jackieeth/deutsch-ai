@@ -23,3 +23,7 @@ Based on ElvenLabs `nextjs` sample and agent dashboard, Deutsch AI was built wit
 ## Results & Future Works
 - This AI tutor can hold his perspective when challenged. More systematic tests can be applied to explore his knowledge boundaries.
 - Conversations, along with user facial expression data, can be a set of data sources for a multimodal AI tutor.
+
+## Videos
+- demo: https://youtu.be/AVu6TnC9GiA
+- tech: https://youtu.be/UndXGJHrJiE
