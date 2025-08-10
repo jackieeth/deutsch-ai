@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConversation } from "@11labs/react";
 import { cn } from "@/lib/utils";
+import { FaceDetection } from "./FaceDetection";
 
 async function requestMicrophonePermission() {
   try {
@@ -27,6 +28,8 @@ async function getSignedUrl(): Promise<string> {
 }
 
 export function ConvAI() {
+  const [faceExpressions, setFaceExpressions] = useState<any>(null);
+  
   const conversation = useConversation({
     onConnect: () => {
       console.log("connected");
@@ -59,8 +62,8 @@ export function ConvAI() {
   }, [conversation]);
 
   return (
-    <div className={"flex justify-center items-center gap-x-4"}>
-      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20"}>
+    <div className={"flex flex-col lg:flex-row justify-center items-center gap-4"}>
+      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md"}>
         <CardContent>
           <CardHeader>
             <CardTitle className={"text-center text-white"}>
@@ -104,6 +107,39 @@ export function ConvAI() {
               End conversation
             </Button>
           </div>
+        </CardContent>
+      </Card>
+      
+      {/* Face Detection Component */}
+      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md"}>
+        <CardContent className="p-4">
+          <CardHeader className="p-0 pb-4">
+            <CardTitle className={"text-center text-white text-lg"}>
+              Facial Expression Detection
+            </CardTitle>
+          </CardHeader>
+          <FaceDetection 
+            onExpressionChange={setFaceExpressions}
+            className="w-full"
+          />
+          {faceExpressions && (
+            <div className="mt-4 text-white text-sm">
+              <div className="grid grid-cols-2 gap-2">
+                <div className={cn("p-2 rounded", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
+                </div>
+                <div className={cn("p-2 rounded", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
+                </div>
+                <div className={cn("p-2 rounded", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
+                </div>
+                <div className="p-2 rounded bg-blue-500/20">
+                  😊 {(faceExpressions.happiness * 100).toFixed(0)}%
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
