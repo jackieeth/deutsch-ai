@@ -61,6 +61,12 @@ export function ConvAI() {
     await conversation.endSession();
   }, [conversation]);
 
+  const handleQuestionClick = (question: string) => {
+    // Add logic here to send the question to the AI conversation
+    console.log("Question clicked:", question);
+    // You can integrate this with your conversation system
+  };
+
   return (
     <div className={"flex flex-col lg:flex-row justify-center items-center gap-4"}>
       <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md"}>
@@ -121,6 +127,29 @@ export function ConvAI() {
         </CardContent>
       </Card>
       
+      {/* Question Cards */}
+      <div className="flex flex-col gap-1 w-full max-w-md">
+        <Card className="rounded-3xl bg-white/10 backdrop-blur-md border-white/20 cursor-pointer hover:bg-white/20 transition-colors">
+          <CardContent className="p-6">
+            
+            <Button
+              variant="ghost"
+              className="w-full mt-4 text-white/80 hover:text-white hover:bg-white/10"
+              onClick={() => handleQuestionClick("Explain what is superposition")}
+            >
+              "Explain what is superposition"
+            </Button>
+          
+            <Button
+              variant="ghost"
+              className="w-full mt-4 text-white/80 hover:text-white hover:bg-white/10"
+              onClick={() => handleQuestionClick("What is measurement")}
+            >
+              "What is measurement"
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
     </div>
   );
