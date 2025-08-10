@@ -6,7 +6,7 @@ This conversational quantum physics AI tutor agent (powered by elevenlabs) is bu
 
 This project is answering the ProfAI challenge at the Hack-Nation MIT AI hackathon.
 
-<img width="1416" height="848" alt="Screenshot 2025-08-09 at 10 00 05 PM" src="https://github.com/user-attachments/assets/464088d0-73cb-4bdb-93fc-5a05ccc06f83" />
+<img width="800" alt="Screenshot 2025-08-09 at 10 00 05 PM" src="https://github.com/user-attachments/assets/464088d0-73cb-4bdb-93fc-5a05ccc06f83" />
 
 
 ## Why?
