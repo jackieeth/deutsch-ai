@@ -151,16 +151,7 @@ export function ConvAI() {
             </CardTitle>
           </CardHeader>
           <div className={"flex flex-col gap-y-4 text-center"}>
-            {/* <div
-              className={cn(
-                "orb my-16 mx-12",
-                conversation.status === "connected" && conversation.isSpeaking
-                  ? "orb-active animate-orb"
-                  : conversation.status === "connected"
-                  ? "animate-orb-slow orb-inactive"
-                  : "orb-inactive"
-              )}
-            ></div> */}
+
 
             <FaceDetection 
             onExpressionChange={setFaceExpressions}

@@ -27,7 +27,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             >
                 <div className={"flex text-white"}>
                     <Link href={"/"} prefetch={true}>
-                        Deutsch AI:<br/>A Quantum Physics Explainer
+                       A Quantum Physics Tutor
                     </Link>
                 </div>
 
