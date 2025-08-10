@@ -60,8 +60,8 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          width: { ideal: 640 },
-          height: { ideal: 480 },
+          width: { ideal: 320 },
+          height: { ideal: 240 },
           facingMode: 'user'
         } 
       });
@@ -71,6 +71,14 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
       }
     } catch (error) {
       console.error('Error starting video:', error);
+    }
+  }, []);
+
+  const stopVideo = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
     }
   }, []);
 
@@ -137,7 +145,7 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
           Math.max(...headPositions.current) - Math.min(...headPositions.current) > 15;
 
         // Detect head tilt (significant roll angle)
-        const isHeadTilted = Math.abs(roll) > 15;
+        const isHeadTilted = Math.abs(roll) > 7;
 
         // Detect confusion (combination of expressions and head movements)
         const isConfused = expressions.disgusted > 0.3 || 
@@ -171,10 +179,12 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
   }, [loadModels]);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && isDetecting) {
       startVideo();
+    } else if (!isDetecting) {
+      stopVideo();
     }
-  }, [isLoaded, startVideo]);
+  }, [isLoaded, isDetecting, startVideo, stopVideo]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
@@ -192,6 +202,23 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
 
   const toggleDetection = () => {
     setIsDetecting(!isDetecting);
+  };
+
+  // Helper function to get color intensity based on expression value
+  const getExpressionColor = (value: number, baseColor: string) => {
+    const intensity = Math.round(value * 255);
+    switch (baseColor) {
+      case 'yellow': // happiness
+        return `rgb(255, 255, ${Math.max(0, 255 - intensity)})`;
+      case 'blue': // sadness
+        return `rgb(${Math.max(0, 255 - intensity)}, ${Math.max(0, 255 - intensity)}, 255)`;
+      case 'red': // anger
+        return `rgb(255, ${Math.max(0, 255 - intensity)}, ${Math.max(0, 255 - intensity)})`;
+      case 'orange': // surprise
+        return `rgb(255, ${Math.max(128, 255 - intensity/2)}, ${Math.max(0, 255 - intensity)})`;
+      default:
+        return 'rgb(128, 128, 128)';
+    }
   };
 
   return (
@@ -228,16 +255,31 @@ export function FaceDetection({ onExpressionChange, className }: FaceDetectionPr
           <p className="text-sm text-gray-500">Loading face detection models...</p>
         )}
         
-        {isDetecting && (
-          <div className="bg-black/50 text-white p-3 rounded space-y-1 text-sm">
-            <div>Status: {expressions.nodding ? '🟢 Nodding' : '⚪ Not Nodding'}</div>
-            <div>Head: {expressions.headTilted ? '🟢 Tilted' : '⚪ Straight'}</div>
-            <div>Emotion: {expressions.confused ? '🟢 Confused' : '⚪ Clear'}</div>
-            <div className="grid grid-cols-2 gap-1 mt-2">
-              <div>😊 {(expressions.happiness * 100).toFixed(1)}%</div>
-              <div>😢 {(expressions.sadness * 100).toFixed(1)}%</div>
-              <div>😠 {(expressions.anger * 100).toFixed(1)}%</div>
-              <div>😲 {(expressions.surprise * 100).toFixed(1)}%</div>
+        {false && isDetecting && (
+          <div className="flex gap-2 mt-3">
+            <div 
+              className="flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-black border-2 border-gray-300"
+              style={{ backgroundColor: getExpressionColor(expressions.happiness, 'yellow') }}
+            >
+              😊
+            </div>
+            <div 
+              className="flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white border-2 border-gray-300"
+              style={{ backgroundColor: getExpressionColor(expressions.sadness, 'blue') }}
+            >
+              �
+            </div>
+            <div 
+              className="flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-white border-2 border-gray-300"
+              style={{ backgroundColor: getExpressionColor(expressions.anger, 'red') }}
+            >
+              �
+            </div>
+            <div 
+              className="flex items-center justify-center w-12 h-12 rounded-full text-xl font-bold text-black border-2 border-gray-300"
+              style={{ backgroundColor: getExpressionColor(expressions.surprise, 'orange') }}
+            >
+              😲
             </div>
           </div>
         )}
