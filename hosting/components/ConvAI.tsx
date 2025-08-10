@@ -61,10 +61,35 @@ export function ConvAI() {
     await conversation.endSession();
   }, [conversation]);
 
-  const handleQuestionClick = (question: string) => {
-    // Add logic here to send the question to the AI conversation
+  const handleQuestionClick = async (question: string) => {
     console.log("Question clicked:", question);
-    // You can integrate this with your conversation system
+    
+    // If not connected, start the conversation first
+    if (conversation.status !== "connected") {
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        alert("Microphone permission is required to ask questions");
+        return;
+      }
+      const signedUrl = await getSignedUrl();
+      await conversation.startSession({ signedUrl });
+      
+      // Wait a moment for the connection to stabilize
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    // For text-based questions, we need to send them to the conversation
+    // Since this is conversational AI, we'll use speech synthesis to "speak" the question
+    if (conversation.status === "connected" && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(question);
+      utterance.volume = 0.8; // Audible volume so the microphone picks it up
+      utterance.rate = 1; // Normal speaking rate
+      utterance.pitch = 1;
+      
+      // Wait for any ongoing speech to finish
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
   };
 
   return (
@@ -145,7 +170,7 @@ export function ConvAI() {
               className="w-full mt-4 text-white/80 hover:text-white hover:bg-white/10"
               onClick={() => handleQuestionClick("What is measurement")}
             >
-              "What is measurement"
+              "What is measurement?"
             </Button>
           </CardContent>
         </Card>
