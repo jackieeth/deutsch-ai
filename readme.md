@@ -7,9 +7,16 @@ This project is answering the ProfAI challenge at the Hack-Nation MIT AI hackath
 
 
 ## Why?
-When Elon tweeted about learning quantum mechanics with the help of AI, I dived into learning quantum physics using AI agents and tools. However, there are inconsistencies, contradictions, and sometimes misleading views in almost all AIs explaining basic quantum physics ideas. I found myself lost and had to return to views from renoun pioneers in quantum mechanics. I compile a list of Prof. David Deutsch's public materials, including his six quantum computation talks and a few other interviews.
+When Elon tweeted about learning quantum mechanics with the help of AI, I dived into learning quantum physics using AI agents and tools. However, there are inconsistencies, contradictions, and sometimes misleading views in almost all AIs explaining basic quantum physics ideas. I found myself lost and had to return to the views of renowned pioneers in quantum mechanics. I compile a list of Prof. David Deutsch's public materials, including his six talks on quantum computation and a few other interviews.
 
-My goal is to build a quantum physics tutor as close to and as strict as Prof. Deutsch's perspectives. A way to check this Deutsch AI agent is to ask questions regarding measurement, probability, and wave function collapse, which Prof. Deutsch holds strong opposing views. 
+My goal is to build a quantum physics tutor as close to and as strict as Prof. Deutsch's perspectives. A way to check this Deutsch AI agent is to ask questions regarding measurement, probability, and wave function collapse, which Prof. Deutsch holds strong opposing views on. 
+
+## How?
+Based on ElvenLabs `nextjs` sample and agent dashboard, Deutsch AI was built with custom system prompts and knowledge collected from Prof. Deutsch's publicly available materials. Facial expression detection was built with `face-api.js` to provide adaptive user feedback from nonverbal interactions (e.g., tilted head, confusion, nodding, smiling, etc).
+
+## Challenges
+1. Strong alignment with Prof. Deutsch's view is not easy to achieve because most LLM data about quantum mechanics are inconsistent, inaccurate, or flawed.
+2. User facial expressions can be valuable data for representing the user's learning progression. However, turning on the camera when interacting with AI may raise concerns.
 
 ## Quick Start
 - setup ElevenLabs account and agent
