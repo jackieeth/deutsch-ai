@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import * as React from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useConversation } from "@11labs/react";
 import { cn } from "@/lib/utils";
+import { FaceDetection } from "./FaceDetection";
 
 async function requestMicrophonePermission() {
   try {
@@ -27,12 +28,21 @@ async function getSignedUrl(): Promise<string> {
 }
 
 export function ConvAI() {
+  const [faceExpressions, setFaceExpressions] = useState<any>(null);
+  const [questions, setQuestions] = useState([
+    "Explain what is superposition",
+    "What is measurement?",
+    "If I can go back in time, will I be able to come back?",
+    "What is multiverse?"
+  ]);
+  const [usedQuestions, setUsedQuestions] = useState<string[]>([]);
+  
   const conversation = useConversation({
     onConnect: () => {
-      console.log("connected");
+      console.log("Deutsch AI connected");
     },
     onDisconnect: () => {
-      console.log("disconnected");
+      console.log("Deutsch AI disconnected");
     },
     onError: error => {
       console.log(error);
@@ -58,54 +68,158 @@ export function ConvAI() {
     await conversation.endSession();
   }, [conversation]);
 
+  const handleQuestionClick = async (question: string) => {
+    console.log("Question clicked:", question);
+    
+    // If not connected, start the conversation first
+    if (conversation.status !== "connected") {
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        alert("Microphone permission is required to ask questions");
+        return;
+      }
+      const signedUrl = await getSignedUrl();
+      await conversation.startSession({ signedUrl });
+      
+      // Wait a moment for the connection to stabilize
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    // For text-based questions, we need to send them to the conversation
+    // Since this is conversational AI, we'll use speech synthesis to "speak" the question
+    if (conversation.status === "connected" && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(question);
+      utterance.volume = 0.8; // Audible volume so the microphone picks it up
+      utterance.rate = 1; // Normal speaking rate
+      utterance.pitch = 1;
+      
+      // Wait for any ongoing speech to finish
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+    }
+
+    // Replace the clicked question with a new one after a delay
+    setTimeout(() => {
+      const allQuestions = [
+        "What is superposition?",
+        "What is measurement?",
+        "If I can go back in time, will I be able to come back?",
+        "What is multiverse?",
+        "What is quantum entanglement?",
+        "How does wave function collapse work?",
+        "What is the many-worlds interpretation?",
+        "How do parallel universes interact?",
+        "What is unitary matrix?",
+        "What is schrodinger picture?",
+        "How to use qubit to represent physical systems?",
+        "What is quantum decoherence?",
+      ];
+
+      // Mark the current question as used
+      const newUsedQuestions = [...usedQuestions, question];
+      setUsedQuestions(newUsedQuestions);
+
+      // Get available questions (not currently shown and not used)
+      const availableQuestions = allQuestions.filter(q => 
+        !questions.includes(q) && !newUsedQuestions.includes(q)
+      );
+
+      if (availableQuestions.length > 0) {
+        // Replace the clicked question with a random available one
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        const newQuestions = questions.map(q => q === question ? randomQuestion : q);
+        setQuestions(newQuestions);
+      } else {
+        // If no new questions available, just remove the clicked one
+        const newQuestions = questions.filter(q => q !== question);
+        setQuestions(newQuestions);
+      }
+    }, 1500); // 1.5 second delay
+  };
+
   return (
-    <div className={"flex justify-center items-center gap-x-4"}>
-      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20"}>
+    <div className={"flex flex-col lg:flex-row justify-center items-start gap-4"}>
+      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md flex-shrink-0"}>
         <CardContent>
           <CardHeader>
             <CardTitle className={"text-center text-white"}>
               {conversation.status === "connected"
                 ? conversation.isSpeaking
-                  ? `Agent is speaking`
-                  : "Agent is listening"
-                : "Disconnected"}
+                  ? `Deutsch AI is speaking`
+                  : `Deutsch AI is listening`
+                : "Deutsch AI"}
             </CardTitle>
           </CardHeader>
           <div className={"flex flex-col gap-y-4 text-center"}>
-            <div
-              className={cn(
-                "orb my-16 mx-12",
-                conversation.status === "connected" && conversation.isSpeaking
-                  ? "orb-active animate-orb"
-                  : conversation.status === "connected"
-                  ? "animate-orb-slow orb-inactive"
-                  : "orb-inactive"
-              )}
-            ></div>
+
+
+            <FaceDetection 
+            onExpressionChange={setFaceExpressions}
+            className="w-full"
+          />
+          
+          {/* Face expressions display - reserve space to prevent layout shift */}
+          <div className="mt-4 text-white text-sm min-h-[80px]">
+            {faceExpressions ? (
+              <div className="grid grid-cols-2 gap-2">
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
+                </div>
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
+                </div>
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
+                  {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
+                </div>
+                <div className="p-1.5 rounded bg-blue-500/20 text-xs">
+                  😊 {(faceExpressions.happiness * 100).toFixed(0)}%
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-white/50 text-xs px-2">
+                Turn on camera so that Deutsch AI can interpret your facial expressions for better interaction.
+              </div>
+            )}
+          </div>
 
             <Button
               variant={"outline"}
               className={"rounded-full bg-white/10 backdrop-blur-md text-white border-white hover:bg-white/20 hover:text-white"}
               size={"lg"}
-              disabled={
-                conversation !== null && conversation.status === "connected"
-              }
-              onClick={startConversation}
+              onClick={conversation.status === "connected" ? stopConversation : startConversation}
             >
-              Start conversation
-            </Button>
-            <Button
-              variant={"outline"}
-              className={"rounded-full bg-white/10 backdrop-blur-md text-white border-white hover:bg-white/20 hover:text-white"}
-              size={"lg"}
-              disabled={conversation === null}
-              onClick={stopConversation}
-            >
-              End conversation
+              {conversation.status === "connected" ? "End conversation" : "Start conversation"}
             </Button>
           </div>
         </CardContent>
       </Card>
+      
+      {/* Question Cards - Only show when conversation is connected */}
+      {conversation.status === "connected" && (<div className="w-full max-w-md flex-shrink-0">
+        
+          <div className="flex flex-col gap-1">
+            <Card className="rounded-3xl bg-white/10 backdrop-blur-md border-white/20 cursor-pointer hover:bg-white/20 transition-colors">
+              <CardHeader>
+                <h3 className="text-sm text-white text-center font-semibold">Questions</h3>
+              </CardHeader>
+              <CardContent>
+                
+                {questions.map((question, index) => (
+                  <Button
+                    key={`${question}-${index}`}
+                    variant="ghost"
+                    className="w-full text-white/80 hover:text-white hover:bg-white/10 mb-1 last:mb-0"
+                    onClick={() => handleQuestionClick(question)}
+                  >
+                    "{question}"
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        
+      </div>)}
+
     </div>
   );
 }
