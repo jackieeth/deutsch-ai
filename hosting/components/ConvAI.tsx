@@ -113,21 +113,9 @@ export function ConvAI() {
               variant={"outline"}
               className={"rounded-full bg-white/10 backdrop-blur-md text-white border-white hover:bg-white/20 hover:text-white"}
               size={"lg"}
-              disabled={
-                conversation !== null && conversation.status === "connected"
-              }
-              onClick={startConversation}
+              onClick={conversation.status === "connected" ? stopConversation : startConversation}
             >
-              Start conversation
-            </Button>
-            <Button
-              variant={"outline"}
-              className={"rounded-full bg-white/10 backdrop-blur-md text-white border-white hover:bg-white/20 hover:text-white"}
-              size={"lg"}
-              disabled={conversation === null}
-              onClick={stopConversation}
-            >
-              End conversation
+              {conversation.status === "connected" ? "End conversation" : "Start conversation"}
             </Button>
           </div>
         </CardContent>
