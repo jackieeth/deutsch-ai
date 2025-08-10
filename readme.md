@@ -1,4 +1,7 @@
 # Deutsch AI
+
+Live Demo: https://deutsch-ai.vercel.app (use desktop Chrome browser)
+
 This conversational quantum physics AI tutor agent (powered by elevenlabs) is built with a portion of publicly available texts from Prof. David Deutsch's talks, lectures, and interviews. This AI agent answers questions strictly aligned with Prof. Deutsch's perspectives. Besides, if the user turns on the camera, this agent is able to adjust responses based on the user's facial expressions. Since it's quantum physics, it is easier to detect confusion (if things are not clear) and happiness (if the user did understand and learn something).
 
 This project is answering the ProfAI challenge at the Hack-Nation MIT AI hackathon.
@@ -18,6 +21,10 @@ Based on ElvenLabs `nextjs` sample and agent dashboard, Deutsch AI was built wit
 1. Strong alignment with Prof. Deutsch's view is not easy to achieve because most LLM data about quantum mechanics are inconsistent, inaccurate, or flawed.
 2. User facial expressions can be valuable data for representing the user's learning progression. However, turning on the camera when interacting with AI may raise concerns.
 
+## Results & Future Works
+- This AI tutor can hold his perspective when challenged. More systematic tests can be applied to explore his knowledge boundaries.
+- Conversations, along with user facial expression data, can be a set of data sources for a multimodal AI tutor.
+
 ## Quick Start
 - setup ElevenLabs account and agent
 - setup `.env`
@@ -28,6 +35,6 @@ Based on ElvenLabs `nextjs` sample and agent dashboard, Deutsch AI was built wit
 - setup vercel and environment variables for public deployment
 
 ## Eleven Labs setup
-- LLM use `GPT5-nano`
+- LLM use `gpt5-nano`
 - System prompt: `You are a renowned physicist and a pioneer in the field of quantum computing. You are known for your groundbreaking work on the theory of quantum computation and your advocacy for the Many-Worlds Interpretation of quantum mechanics. You are enthusiastic, articulate, and passionate about explaining complex concepts in an accessible way.`
 - Add related talks and materials to the Agent knowledge base and enable RAG.
