@@ -29,13 +29,20 @@ async function getSignedUrl(): Promise<string> {
 
 export function ConvAI() {
   const [faceExpressions, setFaceExpressions] = useState<any>(null);
+  const [questions, setQuestions] = useState([
+    "Explain what is superposition",
+    "What is measurement?",
+    "If I can go back in time, will I be able to come back?",
+    "What is multiverse?"
+  ]);
+  const [usedQuestions, setUsedQuestions] = useState<string[]>([]);
   
   const conversation = useConversation({
     onConnect: () => {
-      console.log("connected");
+      console.log("Deutsch AI connected");
     },
     onDisconnect: () => {
-      console.log("disconnected");
+      console.log("Deutsch AI disconnected");
     },
     onError: error => {
       console.log(error);
@@ -90,11 +97,49 @@ export function ConvAI() {
       speechSynthesis.cancel();
       speechSynthesis.speak(utterance);
     }
+
+    // Replace the clicked question with a new one after a delay
+    setTimeout(() => {
+      const allQuestions = [
+        "What is superposition?",
+        "What is measurement?",
+        "If I can go back in time, will I be able to come back?",
+        "What is multiverse?",
+        "What is quantum entanglement?",
+        "How does wave function collapse work?",
+        "What is the many-worlds interpretation?",
+        "How do parallel universes interact?",
+        "What is unitary matrix?",
+        "What is schrodinger picture?",
+        "How to use qubit to represent physical systems?",
+        "What is quantum decoherence?",
+      ];
+
+      // Mark the current question as used
+      const newUsedQuestions = [...usedQuestions, question];
+      setUsedQuestions(newUsedQuestions);
+
+      // Get available questions (not currently shown and not used)
+      const availableQuestions = allQuestions.filter(q => 
+        !questions.includes(q) && !newUsedQuestions.includes(q)
+      );
+
+      if (availableQuestions.length > 0) {
+        // Replace the clicked question with a random available one
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)];
+        const newQuestions = questions.map(q => q === question ? randomQuestion : q);
+        setQuestions(newQuestions);
+      } else {
+        // If no new questions available, just remove the clicked one
+        const newQuestions = questions.filter(q => q !== question);
+        setQuestions(newQuestions);
+      }
+    }, 1500); // 1.5 second delay
   };
 
   return (
-    <div className={"flex flex-col lg:flex-row justify-center items-center gap-4"}>
-      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md"}>
+    <div className={"flex flex-col lg:flex-row justify-center items-start gap-4"}>
+      <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md flex-shrink-0"}>
         <CardContent>
           <CardHeader>
             <CardTitle className={"text-center text-white"}>
@@ -102,7 +147,7 @@ export function ConvAI() {
                 ? conversation.isSpeaking
                   ? `Deutsch AI is speaking`
                   : `Deutsch AI is listening`
-                : "Disconnected"}
+                : "Deutsch AI"}
             </CardTitle>
           </CardHeader>
           <div className={"flex flex-col gap-y-4 text-center"}>
@@ -121,24 +166,30 @@ export function ConvAI() {
             onExpressionChange={setFaceExpressions}
             className="w-full"
           />
-          {faceExpressions && (
-            <div className="mt-4 text-white text-sm">
+          
+          {/* Face expressions display - reserve space to prevent layout shift */}
+          <div className="mt-4 text-white text-sm min-h-[80px]">
+            {faceExpressions ? (
               <div className="grid grid-cols-2 gap-2">
-                <div className={cn("p-2 rounded", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
                   {faceExpressions.nodding ? "👍 Nodding" : "⚪ Not Nodding"}
                 </div>
-                <div className={cn("p-2 rounded", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.headTilted ? "bg-yellow-500/20" : "bg-gray-500/20")}>
                   {faceExpressions.headTilted ? "🤔 Head Tilted" : "⚪ Head Straight"}
                 </div>
-                <div className={cn("p-2 rounded", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
+                <div className={cn("p-1.5 rounded text-xs", faceExpressions.confused ? "bg-red-500/20" : "bg-gray-500/20")}>
                   {faceExpressions.confused ? "😕 Confused" : "✅ Clear"}
                 </div>
-                <div className="p-2 rounded bg-blue-500/20">
+                <div className="p-1.5 rounded bg-blue-500/20 text-xs">
                   😊 {(faceExpressions.happiness * 100).toFixed(0)}%
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center justify-center h-full text-white/50 text-xs px-2">
+                Turn on camera so that Deutsch AI can interpret your facial expressions for better interaction.
+              </div>
+            )}
+          </div>
 
             <Button
               variant={"outline"}
@@ -152,29 +203,31 @@ export function ConvAI() {
         </CardContent>
       </Card>
       
-      {/* Question Cards */}
-      <div className="flex flex-col gap-1 w-full max-w-md">
-        <Card className="rounded-3xl bg-white/10 backdrop-blur-md border-white/20 cursor-pointer hover:bg-white/20 transition-colors">
-          <CardContent className="p-6">
-            
-            <Button
-              variant="ghost"
-              className="w-full mt-4 text-white/80 hover:text-white hover:bg-white/10"
-              onClick={() => handleQuestionClick("Explain what is superposition")}
-            >
-              "Explain what is superposition"
-            </Button>
-          
-            <Button
-              variant="ghost"
-              className="w-full mt-4 text-white/80 hover:text-white hover:bg-white/10"
-              onClick={() => handleQuestionClick("What is measurement")}
-            >
-              "What is measurement?"
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Question Cards - Only show when conversation is connected */}
+      {conversation.status === "connected" && (<div className="w-full max-w-md flex-shrink-0">
+        
+          <div className="flex flex-col gap-1">
+            <Card className="rounded-3xl bg-white/10 backdrop-blur-md border-white/20 cursor-pointer hover:bg-white/20 transition-colors">
+              <CardHeader>
+                <h3 className="text-sm text-white text-center font-semibold">Questions</h3>
+              </CardHeader>
+              <CardContent>
+                
+                {questions.map((question, index) => (
+                  <Button
+                    key={`${question}-${index}`}
+                    variant="ghost"
+                    className="w-full text-white/80 hover:text-white hover:bg-white/10 mb-1 last:mb-0"
+                    onClick={() => handleQuestionClick(question)}
+                  >
+                    "{question}"
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        
+      </div>)}
 
     </div>
   );
