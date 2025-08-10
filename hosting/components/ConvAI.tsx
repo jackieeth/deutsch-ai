@@ -66,8 +66,8 @@ export function ConvAI() {
             <CardTitle className={"text-center text-white"}>
               {conversation.status === "connected"
                 ? conversation.isSpeaking
-                  ? `Agent is speaking`
-                  : "Agent is listening"
+                  ? `Deutsch AI is speaking`
+                  : `Deutsch AI is listening`
                 : "Disconnected"}
             </CardTitle>
           </CardHeader>
