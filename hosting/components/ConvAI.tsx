@@ -168,7 +168,7 @@ export function ConvAI() {
   };
 
   return (
-    <div className={"flex flex-col lg:flex-row justify-center items-start gap-4"}>
+    <div className={"flex flex-col lg:flex-col justify-center items-start gap-4"}>
       <Card className={"rounded-3xl bg-white/10 backdrop-blur-md border-white/20 w-full max-w-md flex-shrink-0"}>
         <CardContent>
           <CardHeader>
@@ -183,13 +183,13 @@ export function ConvAI() {
           <div className={"flex flex-col gap-y-4 text-center"}>
 
 
-            <FaceDetection 
+            {/* <FaceDetection 
             onExpressionChange={setFaceExpressions}
             className="w-full"
-          />
+          /> */}
           
           {/* Face expressions display - reserve space to prevent layout shift */}
-          <div className="mt-4 text-white text-sm min-h-[80px]">
+          {false && <div className="mt-4 text-white text-sm min-h-[80px]">
             {faceExpressions ? (
               <div className="grid grid-cols-3 gap-2">
                 {/* <div className={cn("p-1.5 rounded text-xs", faceExpressions.nodding ? "bg-green-500/20" : "bg-gray-500/20")}>
@@ -210,7 +210,7 @@ export function ConvAI() {
                 Turn on camera so that Deutsch AI can interpret your facial expressions for better interaction.
               </div>
             )}
-          </div>
+          </div>}
 
             <Button
               variant={"outline"}
