@@ -30,6 +30,7 @@ async function getSignedUrl(): Promise<string> {
 export function ConvAI() {
   const [faceExpressions, setFaceExpressions] = useState<any>(null);
   const [lastConfusedTime, setLastConfusedTime] = useState<number>(0);
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
   const [questions, setQuestions] = useState([
     "Explain what is superposition",
     "What is measurement?",
@@ -68,6 +69,26 @@ export function ConvAI() {
   const stopConversation = useCallback(async () => {
     await conversation.endSession();
   }, [conversation]);
+
+  // Check if user is on desktop
+  React.useEffect(() => {
+    const checkIfDesktop = () => {
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+      const isTablet = /ipad|android(?=.*mobile)/i.test(userAgent);
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      
+      // Consider it desktop if it's not mobile/tablet and either has no touch or has a large screen
+      const isDesktopDevice = !isMobile && !isTablet && (!hasTouch || window.innerWidth >= 1024);
+      setIsDesktop(isDesktopDevice);
+    };
+
+    checkIfDesktop();
+    
+    // Re-check on resize in case of window size changes
+    window.addEventListener('resize', checkIfDesktop);
+    return () => window.removeEventListener('resize', checkIfDesktop);
+  }, []);
 
   // Handle automatic confusion detection
   React.useEffect(() => {
@@ -224,8 +245,8 @@ export function ConvAI() {
         </CardContent>
       </Card>
       
-      {/* Question Cards - Only show when conversation is connected */}
-      {conversation.status === "connected" && (<div className="w-full max-w-md flex-shrink-0">
+      {/* Question Cards - Only show when conversation is connected and user is on desktop */}
+      {conversation.status === "connected" && isDesktop && (<div className="w-full max-w-md flex-shrink-0">
         
           <div className="flex flex-col gap-1">
             <Card className="rounded-3xl bg-white/10 backdrop-blur-md border-white/20 cursor-pointer hover:bg-white/20 transition-colors">
